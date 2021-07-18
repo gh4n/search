@@ -1,6 +1,20 @@
 The project implements a simple search to find tickets and users by field.
 
 -----------------------------------------
+
+How do I run it?
+
+Navigate the root of the directory build and tag the docker container
+
+docker build -t zensearch .
+
+Then run it
+
+docker run zensearch
+
+
+-----------------------------------------
+
 How does the search work?
 
 An inverted index is constructed from each field and value of the input corpus. Consider the document below with id: 1

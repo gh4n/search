@@ -11,6 +11,6 @@ class Database(ABC):
         self.store = store
 
     @abstractmethod
-    def query() -> Iterable[Dict[str, Any]]:
+    def query() -> Iterable[Dict[Any, Any]]:
         pass
     

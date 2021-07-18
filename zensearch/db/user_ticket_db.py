@@ -87,7 +87,7 @@ class UserTicketDatabase(Database):
 
 
 if __name__ == "__main__":
-    store = FileStore(Path("/home/han/Projects/usa/interviews/coding-challenge-2021"))
+    store = FileStore(Path("data"))
     db = UserTicketDatabase(store)
     db.load_data()
     db.set_unique_fields()
