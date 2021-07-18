@@ -1,0 +1,5 @@
+*.un~
+*.swp
+__pycache__
+__
+.vscode
