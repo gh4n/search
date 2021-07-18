@@ -1,0 +1,83 @@
+The project implements a simple search to find tickets and users by field.
+
+How does the search work?
+
+An inverted index is constructed from each field and value of the input corpus. Consider the document below with id: 1
+
+{   
+    name: "saskia",
+    age: 1,
+    noises: [
+        "meow",
+        "purr",
+        "sniff"
+    ]
+    temperament: "agreeable",
+    coat: "short"
+}
+
+would look like this when indexed - each field and value key the document with those attributes
+
+{
+    name : {
+        "saskia": [1]
+    },
+    age: {
+        1: [1]
+    },
+    noises: {
+        "meow": [1],
+        "purr": [1],
+        "sniff": [1]
+    },
+    temperament: {
+        "agreeable": [1]
+    },
+    coat: {
+        "short": [1]
+    }
+}
+
+Let's add another document with id: 2
+
+{   
+    name: "bo",
+    age: 1,
+    noises: [
+        "rawr",
+        "purr",
+        "yawn",
+        "meow"
+    ]
+    temperament: "skittish",
+    coat: "long"
+}
+
+Now the index looks like this
+
+{
+    name : {
+        "saskia": [1]
+        "bo": [2]
+    },
+    age: {
+        1: [1, 2]
+    },
+    noises: {
+        "meow": [1, 2],
+        "purr": [1, 2],
+        "sniff": [1],
+        "rawr": [2],
+        "yawn": [2],
+    },
+    temperament: {
+        "agreeable": [1],
+        "skittish": [2]
+    },
+    coat: {
+        "short": [1]
+        "long": [2]
+    }
+}
+
+Now if we want to find all the cats who purr we simple return index[noises][purr]. If we want to find cats aged 1, return index[age][1].
