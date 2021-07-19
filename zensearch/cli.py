@@ -8,8 +8,7 @@ import pprint
 
 store = FileStore(Path("data"))
 db = UserTicketDatabase(store)
-db.setup()
-
+db.setup("users.json", "tickets.json")
 
 questions = [
     inquirer.List(
@@ -25,23 +24,16 @@ questions = [
     inquirer.List(
         "key",
         message="What field would you like to search on?",
-        choices=db.user_fields if entity == "users" else db.ticket_fields,
+        choices=db.user_schema if entity == "users" else db.ticket_schema,
     ),
     inquirer.Text("value", message="Enter a search term", default=""),
 ]
 
-print(db.tickets_index)
+# print(db.users_index.index)
+
 
 answers = inquirer.prompt(questions)
-# print(answers)
 results = db.query(entity[:len(entity) - 1], answers["key"], answers["value"])
-# results = db.query("user", "verified", "")
-# print(db.users_index.query("verified", "True"))
-
-# print(list(results))
-# print(db.users_index.index["verified"]["False"])
-# print(list(results))
 for result in results:
     print(result)
 
-# print(db.users_index.index)

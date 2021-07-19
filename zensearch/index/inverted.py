@@ -10,13 +10,14 @@ class InvertedIndex(Index):
     def __init__(self) -> None:
         self.documents = None
         self.index = {}
-    
+
     def build(self, documents: List[Model]) -> Dict[str, List[int]]:
         self.index = defaultdict(list)
         for doc_id, document in enumerate(documents):
             for key, value in document.record.items():
 
                 key = str(key)
+
                 if key not in self.index:
                     self.index[key] = defaultdict(list)
 
@@ -27,8 +28,9 @@ class InvertedIndex(Index):
                     continue
 
                 value = str(value)
-
+                
                 self.index[key][value].append(doc_id)
+
         return self.index
 
     def query(self, key: str, value: str) -> List[int]:

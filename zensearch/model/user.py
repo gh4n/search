@@ -7,7 +7,8 @@ class User(Model):
     def __init__(self, record: Dict[str, Any]) -> None:
         self.record = record
         self._id = None
+        self.tickets = []
 
     @property
     def id(self) -> str:
-        return self.record["_id"] if "_id" in record else ""
+        return self.record["_id"] if "_id" in self.record else ""
