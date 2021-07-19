@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Iterable
 
 from zensearch.db.database import Database
 from zensearch.store.store import Store
@@ -23,8 +23,8 @@ class UserTicketDatabase(Database):
         self.ticket_fields = None
 
     def load_data(self) -> None:
-        users = store.load("users.json")
-        tickets = store.load("tickets.json")
+        users = self.store.load("users.json")
+        tickets = self.store.load("tickets.json")
 
         for user in users:
             user_model = User(user)
@@ -57,43 +57,47 @@ class UserTicketDatabase(Database):
         self.users_index.build(self.users)
         self.tickets_index.build(self.tickets)
 
-    def link_users_tickets(self):
+    def link_users_tickets(self) -> None:
         for user in self.users:
-            user_id = user.record["_id"]
+            user_id = str(user.record["_id"])
             if user_id in self.tickets_index.index["assignee_id"]:
-                user.record["tickets"] = self.tickets_index.index["assignee_id"][user_id]
+                user.record["tickets"] = self.tickets_index.index["assignee_id"][
+                    user_id
+                ]
             else:
                 user.record["tickets"] = []
 
-    def link_ticket_assignees(self):
+    def link_ticket_assignees(self) -> None:
         for ticket in self.tickets:
-            assignee_id = ticket.record["assignee_id"]
+            assignee_id = str(ticket.record["assignee_id"])
             if assignee_id in self.users_index.index["_id"]:
-                ticket.record["assignee_name"] = self.users[self.users_index.index["_id"][assignee_id][0]].record["name"]
+                ticket.record["assignee_name"] = self.users[
+                    self.users_index.index["_id"][assignee_id][0]
+                ].record["name"]
             else:
                 ticket.record["assignee_name"] = ""
 
-    def query(self, entity: str, key: str, value: str):
+    def setup(self) -> None:
+        self.load_data()
+        self.set_unique_fields()
+        self.add_missing_props()
+        self.build_index()
+        self.link_users_tickets()
+        self.link_ticket_assignees()
+
+    def query(self, entity: str, key: str, value: str) -> Iterable[Dict[Any, Any]]:
         if entity == "user":
             user_ids = self.users_index.query(key, value)
+            print(user_ids)
             for user_id in user_ids:
-                print(self.users[user_id].record)
+                self.users[user_id].record["ticket_names"] = []
                 for ticket_id in self.users[user_id].record["tickets"]:
-                    print(self.tickets[ticket_id].record)
+                    self.users[user_id].record["ticket_names"].append(
+                        self.tickets[ticket_id].record["subject"]
+                    )
+                yield self.users[user_id].record
+
         if entity == "ticket":
             ticket_ids = self.tickets_index.query(key, value)
             for ticket_id in ticket_ids:
-                print(self.tickets[ticket_id].record)
-
-
-if __name__ == "__main__":
-    store = FileStore(Path("data"))
-    db = UserTicketDatabase(store)
-    db.load_data()
-    db.set_unique_fields()
-    db.add_missing_props()
-    db.build_index()
-    db.link_users_tickets()
-    db.link_ticket_assignees()
-    db.query("ticket", "tags", "Georgia")
-
+                yield self.tickets[ticket_id].record

@@ -3,4 +3,4 @@ RUN mkdir /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-ENTRYPOINT [ "python", "-m", "zensearch.db.user_ticket_db" ]
+ENTRYPOINT [ "python", "-m", "zensearch.cli" ]

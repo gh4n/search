@@ -8,9 +8,9 @@ Navigate the root of the directory build and tag the docker container
 
 docker build -t zensearch .
 
-Then run it
+Then run the container with interactive terminal
 
-docker run zensearch
+docker run -it zensearch
 
 ----------
 
