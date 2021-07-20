@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  search:
+    build:
+      context: .
+
+  tests-unit: &test
+    build:
+      context: .
+    environment:
+        PYTHONPATH: .
+    entrypoint: ["pytest"]
+    command: ["--cov-report", "term", "--cov=zensearch", "tests/unit"]
+
+  tests-integration:
+    <<: *test
+    command: ["--cov-report", "term", "--cov=zensearch", "tests/integration"]
+
+  tests:
+    <<: *test
+    command: ["--cov-report", "term", "--cov=zensearch", "tests/"]
