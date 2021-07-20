@@ -36,6 +36,7 @@ class Prompt:
         ]
 
         action = inquirer.prompt(ask_action)["action"]
+        
         if action == "quit":
             print("Until next time...")
             sys.exit()
@@ -49,9 +50,6 @@ class Prompt:
         ]
 
         entity = inquirer.prompt(ask_entity)["entity"]
-
-        if entity == "QUIT":
-            sys.exit()
 
         ask_search_term = [
             inquirer.List(
