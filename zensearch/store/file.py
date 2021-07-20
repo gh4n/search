@@ -2,7 +2,7 @@ import json
 
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Iterable, Any, Dict, Optional
+from typing import Any, Dict
 
 from zensearch.store.store import Store
 

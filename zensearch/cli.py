@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, List, Any, Iterable, Tuple, Union
+import sys
 
 from zensearch.model.model import Model
 from zensearch.store.file import FileStore
@@ -26,6 +27,19 @@ class Prompt:
         self.db.link_ticket_assignees()
 
     def prompt(self):
+        ask_action = [
+            inquirer.List(
+                "action",
+                message="What would you do?",
+                choices=["search", "quit"],
+            )
+        ]
+
+        action = inquirer.prompt(ask_action)["action"]
+        if action == "quit":
+            print("Until next time...")
+            sys.exit()
+
         ask_entity = [
             inquirer.List(
                 "entity",
@@ -35,6 +49,9 @@ class Prompt:
         ]
 
         entity = inquirer.prompt(ask_entity)["entity"]
+
+        if entity == "QUIT":
+            sys.exit()
 
         ask_search_term = [
             inquirer.List(

@@ -3,5 +3,5 @@ from typing import Dict, Any
 
 class Model(ABC):
     @abstractmethod
-    def __init__(self, record: Dict[str, Any]) -> None:
+    def __init__(self, record: Dict[Any, Any]) -> None:
         self.record = record

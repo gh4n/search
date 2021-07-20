@@ -61,23 +61,31 @@ class UserTicketDatabase(Database):
     ) -> Iterable[Dict[Any, Any]]:
 
         results = []
+
         if entity == "users":
             user_ids = self.users_index.query(key, value)
             for user_id in user_ids:
                 user = self.users[user_id]
+
+                # get tickets related to user
                 if related:
                     tickets = [
                         ticket.record["subject"]
                         for ticket in self.get_user_tickets(user)
                     ]
                     user.record["tickets"] = tickets
+
                 results.append(user.record)
+
         elif entity == "tickets":
             ticket_ids = self.tickets_index.query(key, value)
             for ticket_id in ticket_ids:
                 ticket = self.tickets[ticket_id]
+
+                # get user related assigned to ticket
                 if related:
                     ticket.record["assignee_name"] = ticket.assignee_name
+
                 results.append(ticket.record)
         else:
             raise LookupError(f"{entity} not found! Please search on users or tickets")

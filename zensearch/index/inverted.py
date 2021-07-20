@@ -28,7 +28,7 @@ class InvertedIndex(Index):
                     continue
 
                 value = str(value)
-                
+
                 self.index[key][value].append(doc_id)
 
         return self.index

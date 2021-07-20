@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Any, Optional, Dict
-from pathlib import Path
+from typing import Any, Dict
+
 
 class Index(ABC):
     @abstractmethod
