@@ -1,18 +1,22 @@
-The project implements a simple search to find tickets and users by field.
+### 🕵️‍♀️
+The project implements a simple search to find tickets and users by field. The search builds an inverted index structure which is explained in depth below.
 
-Some things I could do given more time
-* testing
-  - include integration tests for the cli prompt
-  - include tests around users having the correct tickets and tickets having the correct assignee
-  - include tests that ensure the inverted index is exactly what we expect it to look like, not just that we can query it correctly
-  - using a library like faker to generate mock ticket/user documents
-* 
-Assumptions
+### Assumptions
 - I have inferred the user and ticket schemas from the example files, this solution requires a hardcoded schema definition. Initially when I wrote this I included a method to generate the schema for a set of records by finding the superset of columns present in all fields. I decided for simplicity's sake to omit this.
 - The relationship between user and ticket is defined by user._id == ticket.assignee_id
 
-----------
-Application architecture
+### How do I run it?
+
+Navigate the root of the directory build and tag the docker container
+
+`docker-compose up`
+
+`docker-compose run tests`
+
+`docker-compose run search`
+
+
+### Application architecture
 
 There are 4 main components within this search application:
 1. store: define the way data is loaded from a datastore - could be local disk, cloud storage (gcs, s3)
@@ -20,16 +24,6 @@ There are 4 main components within this search application:
 3. index: should take any model and index it
 4. db: should take any store and read from it and define how the specific application will query the indexed models
 
-----------
-
-How do I run it?
-
-Navigate the root of the directory build and tag the docker container
-
-- docker build -t zensearch .
-- docker run -it zensearch
-
-----------
 
 How does the search work?
 
@@ -112,3 +106,13 @@ Now the index looks like this
 }
 
 If we want to find all the cats who purr we simple return index[noises][purr] and we get documents 1 and 2. If we want to find all cats named saskia we return index[name][saskia] and we get document 1.
+
+
+
+Some things I could do given more time
+* testing
+  - include integration tests for the cli prompt
+  - include tests around users having the correct tickets and tickets having the correct assignee
+  - include tests that ensure the inverted index is exactly what we expect it to look like, not just that we can query it correctly
+  - using a library like faker to generate mock ticket/user documents
+* 
