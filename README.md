@@ -9,7 +9,7 @@ The project implements a simple search to find tickets and users by field. The s
 
 Only dependency is `Docker` and `docker-compose`
 
-Clone this repo, in the root directory `zensearch/`:
+Clone this repo, in the root directory:
 
 - To run the app `docker-compose run search`
 - To run all tests `docker-compose run tests` 
