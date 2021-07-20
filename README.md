@@ -135,6 +135,7 @@ There are 4 main components within this search application:
 - `db`: should take any store and read from it, define how the specific application will query the indexed models
 
 ### Some things I would do given more time
+* Since we read the document in as a json and convert it to a dict, the	string boolean values ("true", "false") become Python boolean values (`True`, `False`). This is problematic for searching because to retrieve `verified = true` documents we need to search for `verified = True`. 
 * Testing
   - Include integration tests for the cli prompt
   - Include tests that ensure the inverted index is exactly what we expect it to look like, not just that we can query it correctly (i.e that it doesn't contain records it shouldn't)
