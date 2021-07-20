@@ -7,13 +7,12 @@ The project implements a simple search to find tickets and users by field. The s
 
 ### How do I run it?
 
-Only dependency is `Docker`
+Only dependency is `Docker` and `docker-compose`
 
-Navigate the root of the directory build and tag the docker container
+Clone this repo, in the root directory `zensearch/`:
 
-- `docker-compose up`
-- `docker-compose run tests`
-- `docker-compose run search`
+- To run the app `docker-compose run search`
+- To run all tests `docker-compose run tests` 
 
 ### How does the search work?
 
