@@ -3,14 +3,12 @@ from typing import Dict, List, Any, Iterable, Tuple, Union
 
 from zensearch.db.database import Database
 from zensearch.store.store import Store
-from zensearch.index.index import Index
 from zensearch.model.model import Model
+
 from zensearch.model.user import User
 from zensearch.model.ticket import Ticket
-
-from zensearch.store.file import FileStore
 from zensearch.index.inverted import InvertedIndex
-from zensearch.consts import USER_SCHEMA, TICKET_SCHEMA
+from zensearch.model.consts import USER_SCHEMA, TICKET_SCHEMA
 
 
 class UserTicketDatabase(Database):
@@ -27,10 +25,13 @@ class UserTicketDatabase(Database):
         users = self.store.load(user_filename)
         tickets = self.store.load(tickets_filename)
 
-        # Ideally I should validate that the document matches the schema
+        # For production I would validate that the document matches the schema here
+        # otherwise raise an error/decide what behvaiour I want to occur
         for user in users:
             user_model = User(user)
             self.users.append(user_model)
+
+            # Merge schema and record so that all columns are present
             user_model.record = self.user_schema | user_model.record
 
         for ticket in tickets:
@@ -44,54 +45,41 @@ class UserTicketDatabase(Database):
 
     def link_users_tickets(self) -> None:
         for user in self.users:
-            user.tickets = self.tickets_index.index["assignee_id"][user.id]
+            user.tickets = self.tickets_index.query("assignee_id", str(user.id))
 
     def link_ticket_assignees(self) -> None:
         for ticket in self.tickets:
-
-            assignee_id = str(ticket.assignee_id)
-            if assignee_id in self.users_index.index["_id"]:
-                linked_user = self.users_index.index["_id"][assignee_id]
-
-            if linked_user:
-                ticket.assignee_name = self.users[linked_user[0]].record["name"]
-
-    def link_related(self) -> None:
-        self.link_users_tickets()
-        self.link_ticket_assignees()
+            assignee = self.users_index.query("_id", str(ticket.assignee_id))
+            if assignee:
+                ticket.assignee_name = self.users[assignee[0]].record["name"]
 
     def get_user_tickets(self, user: User) -> List[Ticket]:
-        tickets = []
-        for ticket_id in user.tickets:
-            tickets.append(self.tickets[ticket_id])
-        return tickets
-
-    def setup(self, user_filename, tickets_filename) -> None:
-        self.load_data(user_filename, tickets_filename)
-        self.build_index()
-        self.link_related()
+        return [self.tickets[ticket_id] for ticket_id in user.tickets]
 
     def query(
-        self, entity: str, key: str, value: str
-    ) -> Iterable[Tuple[Model, Union[str, List[str]]]]:
+        self, entity: str, key: str, value: str, related=False
+    ) -> Iterable[Dict[Any, Any]]:
 
-        if entity == "user":
+        results = []
+        if entity == "users":
             user_ids = self.users_index.query(key, value)
             for user_id in user_ids:
                 user = self.users[user_id]
-                tickets = [
-                    ticket.record["subject"] for ticket in self.get_user_tickets(user)
-                ]
-                yield (user, tickets)
-
-        elif entity == "ticket":
+                if related:
+                    tickets = [
+                        ticket.record["subject"]
+                        for ticket in self.get_user_tickets(user)
+                    ]
+                    user.record["tickets"] = tickets
+                results.append(user.record)
+        elif entity == "tickets":
             ticket_ids = self.tickets_index.query(key, value)
             for ticket_id in ticket_ids:
                 ticket = self.tickets[ticket_id]
-                yield (ticket.record, ticket.assignee_name)
-
+                if related:
+                    ticket.record["assignee_name"] = ticket.assignee_name
+                results.append(ticket.record)
         else:
             raise LookupError(f"{entity} not found! Please search on users or tickets")
 
-    def export(self, filename: str) -> None:
-        self.store.save([self.users_index, self.ticket_index], filename)
+        return results

@@ -13,7 +13,3 @@ class Database(ABC):
     @abstractmethod
     def query() -> Iterable[Dict[Any, Any]]:
         pass
-    
-    @abstractmethod
-    def export(filename: Optional[str]) -> None:
-        pass
